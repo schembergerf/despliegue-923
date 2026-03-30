@@ -1,0 +1,43 @@
+import express from "express"
+import cors from "cors"
+import { PORT, SECRET } from "./src/config/config.js"
+import { connectDB } from "./src/config/db.js"
+import productRoute from "./src/routes/productRoute.js"
+import categoryRoute from "./src/routes/categoryRoute.js"
+import userRoute from "./src/routes/userRoute.js"
+import purchaseRoute from "./src/routes/purchaseRoute.js"
+
+const app = express()
+
+// Habilitar CORS para permitir peticiones desde el frontend (Vite) de forma segura
+app.use(cors({
+    origin: '*', // Puerto en el que corre React
+    credentials: true // Permite envío de cookies/headers de sesión autorizada
+}))
+
+app.use(express.json())
+
+app.use(express.urlencoded({extended: true}))
+// Paso 1 para habilitar sesion:
+
+// S el ambiente de desarrollo es distinto de test, entonece corremos la base de datos
+// de lo contrario, si el test, corre la base de datos. Esto es poque la sb corre en memoria.
+if(process.env.NODE_ENV !== 'test'){
+    connectDB()
+}
+// Rutas
+// Agrupador de rutas de productos
+app.use("/api/product", productRoute)
+app.use("/api/category", categoryRoute)
+app.use("/api/user", userRoute)
+app.use("/api/purchase", purchaseRoute)
+
+
+
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`)
+    })
+}
+
+export default app;
